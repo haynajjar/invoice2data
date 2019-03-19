@@ -28,29 +28,31 @@ def to_text(path, language='eng'):
 
     with tempfile.NamedTemporaryFile(suffix='.tiff') as tf:
 
-        m_cmd = [
-            'convert',
-            path,
-            "-resize", '5100x6600' ,'-density' ,'600' ,'-quality' ,'75',
-            tf.name
-        ]
-        subprocess.Popen(m_cmd)
-        #print('NAME FILE ... ',tf.name);
-        time.sleep(3)
+        # m_cmd = [
+        #     'convert',
+        #     path,
+        #     #'-colorspace', 'Gray',
+        #     '-type','Grayscale',
+        #     "-resize", '7000x8000' ,'-density' ,'100', '-quality','100',
+        #     tf.name
+        # ]
+        # subprocess.Popen(m_cmd)
+        # #print('NAME FILE ... ',tf.name);
+        # time.sleep(3)
 
         # Step 1: Convert to TIFF
-        # gs_cmd = [
+        # m_cmd = [
         #     'gs',
         #     '-q',
         #     '-dNOPAUSE',
         #     '-r600x600',
         #     '-sDEVICE=tiff24nc',
         #     '-sOutputFile=' + tf.name,
-        #     '/tmp/exp.pdf',
+        #     path,
         #     '-c',
         #     'quit',
         # ]
-        # subprocess.Popen(gs_cmd)
+        # subprocess.Popen(m_cmd)
         # time.sleep(3)
 
         
@@ -58,23 +60,28 @@ def to_text(path, language='eng'):
         # Step 2: Enhance TIFF
         magick_cmd = [
             'convert',
-            tf.name,
+            path,
             '-colorspace',
             'gray',
             '-type',
             'grayscale',
-            '-contrast-stretch',
-            '0',
+            '-resize',
+            '7600x8500',
+            '-density',
+            '380',
+            '-quality',
+            '85',
+            '-depth',
+            '8',
             '-sharpen',
             '0x1',
             #'tiff:-',
             tf.name
         ]
 
+        p1 = subprocess.Popen(magick_cmd) #, stdout=subprocess.PIPE, shell=True
 
-        p1 = subprocess.Popen(magick_cmd, stdout=subprocess.PIPE, shell=True)
-
-        time.sleep(3)
+        time.sleep(20)
         tess_cmd = ['tesseract', '-l', language, '--oem', '1', '--psm', '3', tf.name, 'stdout']
         p2 = subprocess.Popen(tess_cmd, stdout=subprocess.PIPE)
 
